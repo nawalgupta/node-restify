@@ -19,8 +19,8 @@ server.listen(8080, function() {
 });
 ```
 
-Try hitting that with the following curl commands to get a feel for
-what restify is going to turn that into:
+Try hitting that with the following curl commands to get a feel for what
+restify is going to turn that into:
 
 ```sh
 $ curl -is http://localhost:8080/hello/mark -H 'accept: text/plain'
@@ -51,25 +51,25 @@ Date: Mon, 31 Dec 2012 01:42:07 GMT
 Connection: close
 ```
 
-Note that by default, curl uses `Connection: keep-alive`. In order to make the HEAD
-method return right away, you'll need to pass `Connection: close`.
+Note that by default, curl uses `Connection: keep-alive`. In order to make the
+HEAD method return right away, you'll need to pass `Connection: close`.
 
-Since curl is often used with REST APIs, restify provides a plugin to work around
-this idiosyncrasy in curl. The plugin checks whether the user agent is curl. If it
-is, it sets the Connection header to "close" and removes the "Content-Length" header.
+Since curl is often used with REST APIs, restify-plugins includes a plugins to
+work around this idiosyncrasy in curl. The plugin checks whether the user agent
+is curl. If it is, it sets the Connection header to "close" and removes the
+"Content-Length" header.
 
 ```js
-server.pre(restify.pre.userAgentConnection());
+server.pre(plugins.pre.userAgentConnection());
 ```
 
-See the [pre](#pre) method for more information.
+See the [pre](/components/server.md#pre) method for more information.
+
 
 ## Creating a Server
 
-Creating a server is straightforward, as you simply invoke the
-`createServer` API, which takes an options object with the options listed
-below (and `listen()` takes the same arguments as node's
-[http.Server.listen](http://nodejs.org/docs/latest/api/http.html#http_server_listen_port_hostname_backlog_callback)):
+Creating a server is straightforward, as you simply invoke the `createServer`
+API, which takes an options object with the options listed below.
 
 ```js
 var restify = require('restify'),
@@ -99,25 +99,26 @@ server.listen(8080);
 |reqIdHeaders|Array|an optional array of request id header names that will be used to set the request id (i.e., the value for req.getId())|
 |strictRouting|Boolean|(Default=`false`). If set, Restify will treat "/foo" and "/foo/" as different paths.|
 
-## Common handlers: server.use()
 
-A restify server has a `use()` method that takes handlers of
-the form `function (req, res, next)`.   Note that restify runs
-handlers in the order they are registered on a server, so if you want
-some common handlers to run before any of your routes, issue calls to
-`use()` before defining routes.
+## Universal handlers: server.use()
 
-Note that in all calls to `use()` and the routes below, you can pass
-in any combination of direct functions (`function(res, res, next)`) and
-arrays of functions (`[function(req, res, next)]`).
+A restify server has a `use()` method that takes function handlers of the form
+of `function (req, res, next)`. Note that restify runs handlers in the order
+they are registered on a server, so if you want some common handlers to run
+before any of your routes, issue calls to `use()` before defining routes.
+
+Note that in all calls to `use()` and the routes below, you can pass in any
+combination of direct functions (`function(res, res, next)`) and arrays of
+functions (`[function(req, res, next)]`).
+
 
 ## Routing
 
 restify routing, in 'basic' mode, is pretty much identical to express/sinatra,
-in that HTTP verbs are used with a parameterized resource to determine
-what chain of handlers to run.  Values associated with named
-placeholders are available in `req.params`. Note that values will be
-URL-decoded before being passed to you.
+in that HTTP verbs are used with a parameterized resource to determine what
+chain of handlers to run.  Values associated with named placeholders are
+available in `req.params`. Note that values will be URL-decoded before being
+passed to you.
 
 ```js
 function send(req, res, next) {
@@ -293,7 +294,7 @@ at all, so restify treats that like sending a `*`. Much as not sending
 an `Accept` header means the client gets the server's choice. Restify
 will choose this highest matching route.
 In the second case, we explicitly asked for for V1, which got
-us response a response from the version 1 handler function, 
+us response a response from the version 1 handler function,
 but then we asked for V2 and got back JSON.  Finally,
 we asked for a version that doesn't exist and got an error (notably,
 we didn't send an `Accept` header, so we got a JSON response).  Which
@@ -512,14 +513,14 @@ server.get('/hello/:foo', function(req, res, next) {
 server.on('NotFound', function (req, res, err, cb) {
   // do not call res.send! you are now in an error context and are outside
   // of the normal next chain. you can log or do metrics here, and invoke
-  // the callback when you're done. restify will automtically render the 
+  // the callback when you're done. restify will automtically render the
   // NotFoundError as a JSON response.
   return cb();
 });
 
 server.on('InternalServer', function (req, res, err, cb) {
   // if you don't want restify to automatically render the Error object
-  // as a JSON response, you can customize the response by setting the 
+  // as a JSON response, you can customize the response by setting the
   // `body` property of the error
   err.body = '<html><body>some custom error content!</body></html>';
   return cb();

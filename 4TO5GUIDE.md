@@ -132,7 +132,19 @@ it out the door!
 
 ### strict routing
 
-TBD
+Strict routing is now supported via the `strictRouting` option. This allows
+differentiation of routes with trailing slashes. The default value is `false`,
+which mimics the behavior in 4.x which is to strip trailing slashes.
+
+```js
+var server = restify.createServer({
+    strictRouting: true
+});
+// these two routes are distinct with strictRouting option
+server.get('/foo/', function(req, res, next) { });
+server.get('/foo', function(req, res, next) { });
+```
+
 
 ### res.sendRaw()
 
@@ -143,3 +155,11 @@ scenarios where you have preformatted content (pre-gzipped, pre-JSON
 stringified, etc.). `sendRaw` has the same signature as `send`.
 
 
+### Removal of undocumented APIs
+
+Previous versions of restify had some undocumented exports on the main object.
+These have been removed as of 5.x. These include:
+
+* `restify.CORS` - due to removal of CORS from core
+* `restify.httpDate` - undocumented
+* `restify.realizeUrl` - undocumented
